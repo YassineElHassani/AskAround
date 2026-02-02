@@ -1,0 +1,215 @@
+@import "tailwindcss";
+
+@theme {
+  /* New color palette - Dark Blue Theme */
+  --color-black: #061E29;
+  --color-navy: #1D546D;
+  --color-teal: #5F9598;
+  --color-grey: #F3F4F4;
+  
+  /* Black shades */
+  --color-black-50: #f0f3f4;
+  --color-black-100: #dce2e5;
+  --color-black-200: #b9c5cb;
+  --color-black-300: #91a4ad;
+  --color-black-400: #6b838e;
+  --color-black-500: #526873;
+  --color-black-600: #3f515b;
+  --color-black-700: #364349;
+  --color-black-800: #2f393e;
+  --color-black-900: #061E29;
+  
+  /* Navy shades */
+  --color-navy-50: #f0f5f7;
+  --color-navy-100: #dce8ed;
+  --color-navy-200: #bdd3de;
+  --color-navy-300: #91b5c7;
+  --color-navy-400: #5f91a9;
+  --color-navy-500: #44758f;
+  --color-navy-600: #3a6178;
+  --color-navy-700: #1D546D;
+  --color-navy-800: #2d4554;
+  --color-navy-900: #293c48;
+  
+  /* Teal shades */
+  --color-teal-50: #f2f7f8;
+  --color-teal-100: #e0ecee;
+  --color-teal-200: #c4dce0;
+  --color-teal-300: #9bc4ca;
+  --color-teal-400: #6ba5ac;
+  --color-teal-500: #5F9598;
+  --color-teal-600: #4a757a;
+  --color-teal-700: #3f6064;
+  --color-teal-800: #385054;
+  --color-teal-900: #324448;
+  
+  /* Grey shades */
+  --color-grey-50: #F3F4F4;
+  --color-grey-100: #e7e8e9;
+  --color-grey-200: #d4d6d7;
+  --color-grey-300: #b6b9bb;
+  --color-grey-400: #92969a;
+  --color-grey-500: #787d82;
+  --color-grey-600: #696d72;
+  --color-grey-700: #5a5d61;
+  --color-grey-800: #4e5053;
+  --color-grey-900: #454749;
+
+  --color-background: var(--color-grey-50);
+  --color-foreground: var(--color-black-900);
+
+  --color-primary: var(--color-navy-700);
+  --color-primary-foreground: #ffffff;
+
+  --color-secondary: var(--color-teal-500);
+  --color-secondary-foreground: #ffffff;
+  
+  --color-accent: var(--color-teal-400);
+  --color-accent-foreground: var(--color-black-900);
+
+  --color-muted: var(--color-grey-200);
+  --color-muted-foreground: var(--color-black-600);
+
+  --color-card: #ffffff;
+  --color-card-foreground: var(--color-black-900);
+
+  --color-border: var(--color-grey-300);
+  --color-input: var(--color-grey-100);
+  
+  --radius-lg: 1rem;
+  --radius-md: 0.75rem;
+  --radius-sm: 0.5rem;
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+}
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: var(--color-foreground);
+  background-color: var(--color-background);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  @apply min-h-screen bg-background text-foreground antialiased;
+}
+
+#root {
+  @apply h-full;
+}
+
+/* Custom Leaflet Popup Styles */
+.leaflet-popup-content-wrapper {
+  @apply rounded-2xl shadow-2xl overflow-hidden bg-white;
+  border: 2px solid #d4d6d7 !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  width: auto !important;
+  min-width: 250px !important;
+}
+
+.leaflet-popup-tip {
+  background: white !important;
+  border: 2px solid #d4d6d7 !important;
+}
+
+.leaflet-container a.leaflet-popup-close-button {
+  color: #92969a !important;
+  font-size: 26px !important;
+  padding-right: 16px !important;
+  font-weight: bold !important;
+  transition: color 0.2s;
+}
+
+.leaflet-container a.leaflet-popup-close-button:hover {
+  color: #061E29 !important;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-grey-200;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-navy-600 rounded-lg;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-navy-700;
+}
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color: var(--color-foreground);
+  background-color: var(--color-background);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  @apply min-h-screen bg-background text-foreground antialiased;
+}
+
+#root {
+  @apply h-full;
+}
+
+/* Marker Cluster Styles */
+.marker-cluster-small,
+.marker-cluster-medium,
+.marker-cluster-large {
+  background-clip: padding-box;
+}
+
+.marker-cluster-small div,
+.marker-cluster-medium div,
+.marker-cluster-large div {
+  background-clip: padding-box;
+}
+
+.marker-cluster {
+  animation: markerClusterPulse 2s ease-in-out infinite;
+}
+
+@keyframes markerClusterPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.9;
+  }
+}
+
+.leaflet-cluster-spider-leg {
+  stroke: #1D546D !important;
+  stroke-width: 2 !important;
+  stroke-opacity: 0.6 !important;
+}
