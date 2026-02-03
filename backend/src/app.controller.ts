@@ -1,12 +1,17 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
+import { User, UserSchema } from './schemas/user.schema';
+import { QuestionsModule } from '../questions/questions.module';
 
-@Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) { }
-
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
-}
+@Module({
+  imports: [
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    QuestionsModule,
+  ],
+  controllers: [UsersController],
+  providers: [UsersService],
+  exports: [UsersService],
+})
+export class UsersModule {}
