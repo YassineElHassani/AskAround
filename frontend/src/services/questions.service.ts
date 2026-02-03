@@ -18,12 +18,12 @@ export interface Question {
   createdAt: string;
 }
 
-export const getNearbyQuestions = async (latitude: number, longitude: number, maxDistance: number = 10000) => {
+export const getNearbyQuestions = async (latitude: number, longitude: number, radius: number = 10000) => {
   const response = await api.get<Question[]>('/questions', {
     params: {
       latitude,
       longitude,
-      maxDistance,
+      radius,
     },
   });
   return response.data;

@@ -13,18 +13,26 @@ export class AuthService {
     ) { }
 
     async register(registerDto: RegisterDto) {
-        const user = await this.usersService.create(registerDto);
-        const userId = (user as any)._id.toString();
+        try {
+            const user = await this.usersService.create(registerDto);
+            const userId = (user as any)._id.toString();
 
-        const payload = { email: user.email, sub: userId };
-        return {
-            access_token: this.jwtService.sign(payload),
-            user: {
-                id: userId,
-                name: user.name,
-                email: user.email,
-            },
-        };
+            const payload = { email: user.email, sub: userId };
+            return {
+                access_token: this.jwtService.sign(payload),
+                user: {
+                    id: userId,
+                    name: user.name,
+                    email: user.email,
+                },
+            };
+        } catch (error) {
+            // Let ConflictException bubble up, wrap others
+            if (error.status === 409) {
+                throw error;
+            }
+            throw new UnauthorizedException('Registration failed');
+        }
     }
 
     async login(loginDto: LoginDto) {
@@ -56,6 +64,10 @@ export class AuthService {
     }
 
     async validateUser(userId: string) {
-        return this.usersService.findById(userId);
+        const user = await this.usersService.findById(userId);
+        if (!user) {
+            throw new UnauthorizedException('User not found');
+        }
+        return user;
     }
 }

@@ -24,14 +24,24 @@ export class AnswersService {
     }
 
     async findByQuestionId(questionId: string): Promise<Answer[]> {
-        return this.answerModel
+        const answers = await this.answerModel
             .find({ questionId: new Types.ObjectId(questionId) })
             .populate('userId', 'name email')
             .sort({ createdAt: -1 })
             .exec();
+        
+        // Transform userId to author for frontend compatibility
+        return answers.map(answer => {
+            const answerObj = answer.toObject();
+            return {
+                ...answerObj,
+                author: answerObj.userId,
+                userId: undefined
+            } as any;
+        });
     }
 
-    async findById(id: string): Promise<AnswerDocument> {
+    async findById(id: string): Promise<any> {
         const answer = await this.answerModel
             .findById(id)
             .populate('userId', 'name email')
@@ -41,6 +51,12 @@ export class AnswersService {
             throw new NotFoundException('Answer not found');
         }
 
-        return answer;
+        // Transform userId to author for frontend compatibility
+        const answerObj = answer.toObject();
+        return {
+            ...answerObj,
+            author: answerObj.userId,
+            userId: undefined
+        };
     }
 }

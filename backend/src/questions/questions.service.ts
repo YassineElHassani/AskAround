@@ -31,31 +31,58 @@ export class QuestionsService {
         return newQuestion.save();
     }
 
-    async findNearby(getQuestionsDto: GetQuestionsDto): Promise<Question[]> {
+    async findNearby(getQuestionsDto: GetQuestionsDto): Promise<any[]> {
         const maxDistance = getQuestionsDto.radius || 5000; // 5km default
 
-        return this.questionModel
-            .find({
-                location: {
-                    $near: {
-                        $geometry: {
-                            type: 'Point',
-                            coordinates: [
-                                getQuestionsDto.longitude,
-                                getQuestionsDto.latitude,
-                            ],
+        try {
+            const questions = await this.questionModel
+                .find({
+                    location: {
+                        $near: {
+                            $geometry: {
+                                type: 'Point',
+                                coordinates: [
+                                    getQuestionsDto.longitude,
+                                    getQuestionsDto.latitude,
+                                ],
+                            },
+                            $maxDistance: maxDistance,
                         },
-                        $maxDistance: maxDistance,
                     },
-                },
-            })
-            .populate('userId', 'name email')
-            .populate('answers')
-            .sort({ createdAt: -1 })
-            .exec();
+                })
+                .populate('userId', 'name email')
+                .populate({
+                    path: 'answers',
+                    populate: {
+                        path: 'userId',
+                        select: 'name email',
+                    },
+                })
+                .sort({ createdAt: -1 })
+                .exec();
+            
+            // Transform userId to author for frontend compatibility
+            return questions.map(question => {
+                const questionObj = question.toObject();
+                return {
+                    ...questionObj,
+                    author: questionObj.userId,
+                    userId: undefined,
+                    answers: questionObj.answers?.map((answer: any) => ({
+                        ...answer,
+                        author: answer.userId,
+                        userId: undefined,
+                    })) || [],
+                };
+            });
+        } catch (error) {
+            // If geospatial query fails (e.g., no index yet), return empty array
+            console.error('Geospatial query error:', error);
+            return [];
+        }
     }
 
-    async findById(id: string): Promise<QuestionDocument> {
+    async findById(id: string): Promise<any> {
         const question = await this.questionModel
             .findById(id)
             .populate('userId', 'name email')
@@ -72,7 +99,18 @@ export class QuestionsService {
             throw new NotFoundException('Question not found');
         }
 
-        return question;
+        // Transform userId to author for frontend compatibility
+        const questionObj = question.toObject();
+        return {
+            ...questionObj,
+            author: questionObj.userId,
+            userId: undefined,
+            answers: questionObj.answers?.map((answer: any) => ({
+                ...answer,
+                author: answer.userId,
+                userId: undefined,
+            })) || [],
+        };
     }
 
     async addAnswer(questionId: string, answerId: string): Promise<Question> {
