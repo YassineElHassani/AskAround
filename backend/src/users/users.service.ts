@@ -1,26 +1,90 @@
-import { Controller, Get, Post, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
-import { QuestionsService } from './questions.service';
-import { CreateQuestionDto } from './dto/create-question.dto';
-import { GetQuestionsDto } from './dto/get-questions.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import {
+  Injectable,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+import * as bcrypt from 'bcrypt';
+import { User, UserDocument } from './schemas/user.schema';
+import { CreateUserDto } from './dto/create-user.dto';
 
-@Controller('questions')
-export class QuestionsController {
-    constructor(private readonly questionsService: QuestionsService) { }
+@Injectable()
+export class UsersService {
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
-    @UseGuards(JwtAuthGuard)
-    @Post()
-    async create(@Body() createQuestionDto: CreateQuestionDto, @Request() req) {
-        return this.questionsService.create(createQuestionDto, req.user.userId);
+  async create(createUserDto: CreateUserDto): Promise<User> {
+    const existingUser = await this.userModel.findOne({
+      email: createUserDto.email,
+    });
+
+    if (existingUser) {
+      throw new ConflictException('User with this email already exists');
     }
 
-    @Get()
-    async findNearby(@Query() getQuestionsDto: GetQuestionsDto) {
-        return this.questionsService.findNearby(getQuestionsDto);
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const newUser = new this.userModel({
+      ...createUserDto,
+      password: hashedPassword,
+    });
+
+    return newUser.save();
+  }
+
+  async findByEmail(email: string): Promise<UserDocument | null> {
+    return this.userModel.findOne({ email }).exec();
+  }
+
+  async findById(id: string): Promise<UserDocument | null> {
+    return this.userModel.findById(id).exec();
+  }
+
+  async addFavoriteQuestion(
+    userId: string,
+    questionId: string,
+  ): Promise<User> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
 
-    @Get(':id')
-    async findOne(@Param('id') id: string) {
-        return this.questionsService.findById(id);
+    const questionObjectId = new Types.ObjectId(questionId);
+    
+    if (user.favoriteQuestions.some((id) => id.equals(questionObjectId))) {
+      throw new ConflictException('Question already in favorites');
     }
+
+    user.favoriteQuestions.push(questionObjectId);
+    return user.save();
+  }
+
+  async removeFavoriteQuestion(
+    userId: string,
+    questionId: string,
+  ): Promise<User> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const questionObjectId = new Types.ObjectId(questionId);
+    user.favoriteQuestions = user.favoriteQuestions.filter(
+      (id) => !id.equals(questionObjectId),
+    );
+
+    return user.save();
+  }
+
+  async getFavoriteQuestions(userId: string): Promise<UserDocument> {
+    const user = await this.userModel
+      .findById(userId)
+      .populate('favoriteQuestions')
+      .exec();
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    return user;
+  }
 }

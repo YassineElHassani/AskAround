@@ -1,24 +1,26 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Controller, Get, Post, Body, Param, Query, UseGuards, Request } from '@nestjs/common';
+import { QuestionsService } from './questions.service';
+import { CreateQuestionDto } from './dto/create-question.dto';
+import { GetQuestionsDto } from './dto/get-questions.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
-export type AnswerDocument = Answer & Document;
+@Controller('questions')
+export class QuestionsController {
+    constructor(private readonly questionsService: QuestionsService) {}
 
-@Schema({ timestamps: true })
-export class Answer {
-    @Prop({ required: true })
-    content: string;
+    @UseGuards(JwtAuthGuard)
+    @Post()
+    async create(@Body() createQuestionDto: CreateQuestionDto, @Request() req) {
+        return this.questionsService.create(createQuestionDto, req.user.userId);
+    }
 
-    @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-    author: Types.ObjectId;
+    @Get()
+    async findNearby(@Query() getQuestionsDto: GetQuestionsDto) {
+        return this.questionsService.findNearby(getQuestionsDto);
+    }
 
-    @Prop({ type: Types.ObjectId, ref: 'Question', required: true })
-    question: Types.ObjectId;
-
-    @Prop()
-    createdAt: Date;
-
-    @Prop()
-    updatedAt: Date;
+    @Get(':id')
+    async findOne(@Param('id') id: string) {
+        return this.questionsService.findById(id);
+    }
 }
-
-export const AnswerSchema = SchemaFactory.createForClass(Answer);

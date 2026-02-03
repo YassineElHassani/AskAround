@@ -1,12 +1,8 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
-@Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) { }
-
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
-  }
-}
+export const GetUser = createParamDecorator(
+    (data: unknown, ctx: ExecutionContext) => {
+        const request = ctx.switchToHttp().getRequest();
+        return request.user;
+    },
+);

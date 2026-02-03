@@ -1,22 +1,46 @@
-import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { UsersModule } from '../users/users.module';
-import { JwtStrategy } from './strategies/jwt.strategy';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+import { Answer, AnswerDocument } from './schemas/answer.schema';
+import { CreateAnswerDto } from './dto/create-answer.dto';
 
-@Module({
-    imports: [
-        UsersModule,
-        PassportModule,
-        JwtModule.register({
-            secret: process.env.JWT_SECRET || 'default-secret-key-change-in-production',
-            signOptions: { expiresIn: '7d' },
-        }),
-    ],
-    controllers: [AuthController],
-    providers: [AuthService, JwtStrategy],
-    exports: [AuthService],
-})
-export class AuthModule { }
+@Injectable()
+export class AnswersService {
+    constructor(
+        @InjectModel(Answer.name) private answerModel: Model<AnswerDocument>,
+    ) { }
+
+    async create(
+        createAnswerDto: CreateAnswerDto,
+        userId: string,
+    ): Promise<Answer> {
+        const newAnswer = new this.answerModel({
+            content: createAnswerDto.content,
+            userId: new Types.ObjectId(userId),
+            questionId: new Types.ObjectId(createAnswerDto.questionId),
+        });
+
+        return newAnswer.save();
+    }
+
+    async findByQuestionId(questionId: string): Promise<Answer[]> {
+        return this.answerModel
+            .find({ questionId: new Types.ObjectId(questionId) })
+            .populate('userId', 'name email')
+            .sort({ createdAt: -1 })
+            .exec();
+    }
+
+    async findById(id: string): Promise<AnswerDocument> {
+        const answer = await this.answerModel
+            .findById(id)
+            .populate('userId', 'name email')
+            .exec();
+
+        if (!answer) {
+            throw new NotFoundException('Answer not found');
+        }
+
+        return answer;
+    }
+}

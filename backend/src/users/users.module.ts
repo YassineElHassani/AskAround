@@ -1,25 +1,15 @@
-import {
-    IsString,
-    IsNotEmpty,
-    IsNumber,
-    IsLatitude,
-    IsLongitude,
-} from 'class-validator';
+import { Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { UsersController } from './users.controller';
+import { UsersService } from './users.service';
+import { User, UserSchema } from './schemas/user.schema';
 
-export class CreateQuestionDto {
-    @IsString()
-    @IsNotEmpty()
-    title: string;
-
-    @IsString()
-    @IsNotEmpty()
-    content: string;
-
-    @IsNumber()
-    @IsLongitude()
-    longitude: number;
-
-    @IsNumber()
-    @IsLatitude()
-    latitude: number;
-}
+@Module({
+    imports: [
+        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
+    ],
+    controllers: [UsersController],
+    providers: [UsersService],
+    exports: [UsersService, MongooseModule],
+})
+export class UsersModule {}

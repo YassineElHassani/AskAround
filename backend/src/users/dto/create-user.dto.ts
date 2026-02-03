@@ -1,49 +1,16 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
-export type QuestionDocument = Question & Document;
+export class CreateUserDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
 
-@Schema({ timestamps: true })
-export class Question {
-    @Prop({ required: true })
-    title: string;
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
 
-    @Prop({ required: true })
-    content: string;
-
-    @Prop({
-        type: {
-            type: String,
-            enum: ['Point'],
-            required: true,
-        },
-        coordinates: {
-            type: [Number],
-            required: true,
-        },
-    })
-    location: {
-        type: 'Point';
-        coordinates: [number, number]; // [longitude, latitude]
-    };
-
-    @Prop({ type: Types.ObjectId, ref: 'User', required: true })
-    author: Types.ObjectId;
-
-    @Prop({ type: [{ type: Types.ObjectId, ref: 'Answer' }], default: [] })
-    answers: Types.ObjectId[];
-
-    @Prop({ default: 0 })
-    likeCount: number;
-
-    @Prop()
-    createdAt: Date;
-
-    @Prop()
-    updatedAt: Date;
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(6)
+  password: string;
 }
-
-export const QuestionSchema = SchemaFactory.createForClass(Question);
-
-// Create 2dsphere index for geospatial queries
-QuestionSchema.index({ location: '2dsphere' });

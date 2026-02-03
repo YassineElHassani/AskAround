@@ -1,18 +1,24 @@
-import { Injectable } from '@nestjs/common';
-import { PassportStrategy } from '@nestjs/passport';
-import { ExtractJwt, Strategy } from 'passport-jwt';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 
-@Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
-    constructor() {
-        super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            ignoreExpiration: false,
-            secretOrKey: process.env.JWT_SECRET || 'default-secret-key-change-in-production',
-        });
-    }
+export type AnswerDocument = Answer & Document;
 
-    async validate(payload: any) {
-        return { userId: payload.sub, email: payload.email };
-    }
+@Schema({ timestamps: true })
+export class Answer {
+    @Prop({ required: true })
+    content: string;
+
+    @Prop({ type: Types.ObjectId, ref: 'Question', required: true })
+    questionId: Types.ObjectId;
+
+    @Prop({ type: Types.ObjectId, ref: 'User', required: true })
+    userId: Types.ObjectId;
+
+    @Prop({ default: Date.now })
+    createdAt: Date;
+
+    @Prop({ default: Date.now })
+    updatedAt: Date;
 }
+
+export const AnswerSchema = SchemaFactory.createForClass(Answer);

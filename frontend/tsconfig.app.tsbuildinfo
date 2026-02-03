@@ -1,0 +1,23 @@
+{
+    "root": [
+        "./src/app.tsx",
+        "./src/main.tsx",
+        "./src/components/createquestionmodal.tsx",
+        "./src/components/map.tsx",
+        "./src/components/ui/button.tsx",
+        "./src/components/ui/card.tsx",
+        "./src/components/ui/input.tsx",
+        "./src/context/authcontext.tsx",
+        "./src/hooks/usegeolocation.ts",
+        "./src/lib/utils.ts",
+        "./src/pages/authpage.tsx",
+        "./src/pages/favoritespage.tsx",
+        "./src/pages/homepage.tsx",
+        "./src/pages/questionpage.tsx",
+        "./src/services/answers.service.ts",
+        "./src/services/api.ts",
+        "./src/services/auth.service.ts",
+        "./src/services/questions.service.ts"
+    ],
+    "version": "5.9.3"
+}

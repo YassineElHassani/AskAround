@@ -25,15 +25,14 @@ export class QuestionsService {
                     createQuestionDto.latitude,
                 ],
             },
-            author: new Types.ObjectId(userId),
+            userId: new Types.ObjectId(userId),
         });
 
         return newQuestion.save();
     }
 
     async findNearby(getQuestionsDto: GetQuestionsDto): Promise<Question[]> {
-        const maxDistance = getQuestionsDto.maxDistance || 3000; // 3km default
-        const limit = getQuestionsDto.limit || 50;
+        const maxDistance = getQuestionsDto.radius || 5000; // 5km default
 
         return this.questionModel
             .find({
@@ -50,8 +49,7 @@ export class QuestionsService {
                     },
                 },
             })
-            .limit(limit)
-            .populate('author', 'name email')
+            .populate('userId', 'name email')
             .populate('answers')
             .sort({ createdAt: -1 })
             .exec();
@@ -60,11 +58,11 @@ export class QuestionsService {
     async findById(id: string): Promise<QuestionDocument> {
         const question = await this.questionModel
             .findById(id)
-            .populate('author', 'name email')
+            .populate('userId', 'name email')
             .populate({
                 path: 'answers',
                 populate: {
-                    path: 'author',
+                    path: 'userId',
                     select: 'name email',
                 },
             })

@@ -1,11 +1,27 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document, Types } from 'mongoose';
 
-export class LoginDto {
-    @IsEmail()
-    @IsNotEmpty()
-    email: string;
+export type UserDocument = User & Document;
 
-    @IsString()
-    @IsNotEmpty()
-    password: string;
+@Schema({ timestamps: true })
+export class User {
+  @Prop({ required: true })
+  name: string;
+
+  @Prop({ required: true, unique: true })
+  email: string;
+
+  @Prop({ required: true })
+  password: string;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Question' }], default: [] })
+  favoriteQuestions: Types.ObjectId[];
+
+  @Prop()
+  createdAt: Date;
+
+  @Prop()
+  updatedAt: Date;
 }
+
+export const UserSchema = SchemaFactory.createForClass(User);

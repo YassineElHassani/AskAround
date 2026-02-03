@@ -61,10 +61,19 @@ const QuestionPage = () => {
     try {
       const addedAnswer = await createAnswer(id, newAnswer);
       if (addedAnswer && addedAnswer._id) {
-        setAnswers([addedAnswer, ...answers]);
+        // Populate the author field with current user data
+        const enrichedAnswer = {
+          ...addedAnswer,
+          author: {
+            _id: user._id,
+            name: user.name,
+            email: user.email
+          }
+        };
+        setAnswers([enrichedAnswer, ...answers]);
         setNewAnswer('');
         // Update question's answer count
-        setQuestion(prev => prev ? { ...prev, answers: [...(prev.answers || []), addedAnswer] } : null);
+        setQuestion(prev => prev ? { ...prev, answers: [...(prev.answers || []), enrichedAnswer] } : null);
       }
     } catch (err) {
       console.error('Failed to create answer:', err);
