@@ -1,24 +1,18 @@
-import { IsNumber, IsOptional, Min } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
 
-export class GetQuestionsDto {
-    @IsNumber()
-    @Type(() => Number)
-    longitude: number;
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+    constructor() {
+        super({
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            ignoreExpiration: false,
+            secretOrKey: process.env.JWT_SECRET || 'default-secret-key-change-in-production',
+        });
+    }
 
-    @IsNumber()
-    @Type(() => Number)
-    latitude: number;
-
-    @IsOptional()
-    @IsNumber()
-    @Type(() => Number)
-    @Min(1)
-    maxDistance?: number; // in meters, default 3000 (3km)
-
-    @IsOptional()
-    @IsNumber()
-    @Type(() => Number)
-    @Min(1)
-    limit?: number; // default 50
+    async validate(payload: any) {
+        return { userId: payload.sub, email: payload.email };
+    }
 }

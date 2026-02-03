@@ -1,25 +1,17 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
-import { QuestionsModule } from './questions/questions.module';
-import { AnswersModule } from './answers/answers.module';
+import { QuestionsController } from './questions.controller';
+import { QuestionsService } from './questions.service';
+import { Question, QuestionSchema } from './schemas/question.schema';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    MongooseModule.forRoot(process.env.MONGODB_URI || 'mongodb://localhost:27017/askaround'),
-    UsersModule,
-    AuthModule,
-    QuestionsModule,
-    AnswersModule,
-  ],
-  controllers: [AppController],
-  providers: [AppService],
+    imports: [
+        MongooseModule.forFeature([
+            { name: Question.name, schema: QuestionSchema },
+        ]),
+    ],
+    controllers: [QuestionsController],
+    providers: [QuestionsService],
+    exports: [QuestionsService],
 })
-export class AppModule { }
+export class QuestionsModule { }

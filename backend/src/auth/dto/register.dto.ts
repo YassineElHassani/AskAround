@@ -1,27 +1,33 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { IsEmail, IsString, MinLength, MaxLength, IsOptional, IsEnum } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export type UserDocument = User & Document;
-
-@Schema({ timestamps: true })
-export class User {
-  @Prop({ required: true })
-  name: string;
-
-  @Prop({ required: true, unique: true })
-  email: string;
-
-  @Prop({ required: true })
-  password: string;
-
-  @Prop({ type: [{ type: Types.ObjectId, ref: 'Question' }], default: [] })
-  favoriteQuestions: Types.ObjectId[];
-
-  @Prop()
-  createdAt: Date;
-
-  @Prop()
-  updatedAt: Date;
+export enum Role {
+  ADMIN = 'ADMIN',
+  CLIENT = 'CLIENT',
 }
 
-export const UserSchema = SchemaFactory.createForClass(User);
+export class RegisterDto {
+  @ApiProperty({ description: 'User email address', example: 'newuser@example.com' })
+  @IsEmail()
+  email: string;
+
+  @ApiProperty({ description: 'User password (minimum 6 characters)', example: 'securePassword123', minLength: 6 })
+  @IsString()
+  @MinLength(6)
+  password: string;
+
+  @ApiProperty({ description: 'User full name', example: 'John Doe' })
+  @IsString()
+  @MaxLength(255)
+  name: string;
+
+  @ApiPropertyOptional({ 
+    description: 'User role (defaults to CLIENT if not provided)', 
+    enum: Role,
+    example: 'CLIENT',
+    default: 'CLIENT'
+  })
+  @IsEnum(Role)
+  @IsOptional()
+  role?: Role;
+}

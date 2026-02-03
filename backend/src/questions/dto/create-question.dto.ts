@@ -1,5 +1,25 @@
-import { Injectable } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
+import {
+    IsString,
+    IsNotEmpty,
+    IsNumber,
+    IsLatitude,
+    IsLongitude,
+} from 'class-validator';
 
-@Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') { }
+export class CreateQuestionDto {
+    @IsString()
+    @IsNotEmpty()
+    title: string;
+
+    @IsString()
+    @IsNotEmpty()
+    content: string;
+
+    @IsNumber()
+    @IsLongitude()
+    longitude: number;
+
+    @IsNumber()
+    @IsLatitude()
+    latitude: number;
+}
