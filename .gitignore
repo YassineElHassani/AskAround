@@ -1,6 +1,3 @@
-docker.bat
-docker.sh
-
 # Dependencies
 node_modules/
 */node_modules/
